@@ -845,7 +845,10 @@ extension DropDown {
 	- returns: Wether it succeed and how much height is needed to display all cells at once.
 	*/
 	@discardableResult
-    public func show(onTopOf window: UIWindow? = nil, beforeTransform transform: CGAffineTransform? = nil, anchorPoint: CGPoint? = nil) -> (canBeDisplayed: Bool, offscreenHeight: CGFloat?) {
+    public func show(onTopOf window: UIWindow? = nil,
+                     beforeTransform transform: CGAffineTransform? = nil,
+                     anchorPoint: CGPoint? = nil,
+                     _ completion: ((Bool) -> Void)? = nil) -> (canBeDisplayed: Bool, offscreenHeight: CGFloat?) {
 		if self == DropDown.VisibleDropDown && DropDown.VisibleDropDown?.isHidden == false { // added condition - DropDown.VisibleDropDown?.isHidden == false -> to resolve forever hiding dropdown issue when continuous taping on button - Kartik Patel - 2016-12-29
 			return (true, 0)
 		}
@@ -895,7 +898,7 @@ extension DropDown {
 			animations: { [weak self] in
 				self?.setShowedState()
 			},
-			completion: nil)
+            completion: { completion?($0) })
 
 		accessibilityViewIsModal = true
 		UIAccessibility.post(notification: .screenChanged, argument: self)
@@ -917,7 +920,7 @@ extension DropDown {
 	}
 
 	/// Hides the drop down.
-	public func hide() {
+    public func hide(_ completion: ((Bool) -> Void)? = nil) {
 		if self == DropDown.VisibleDropDown {
 			/*
 			If one drop down is showed and another one is not
@@ -944,6 +947,7 @@ extension DropDown {
 				self.isHidden = true
 				self.removeFromSuperview()
 				UIAccessibility.post(notification: .screenChanged, argument: nil)
+                completion?(finished)
 		})
 	}
 
